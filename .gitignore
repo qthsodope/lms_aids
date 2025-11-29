@@ -1,0 +1,58 @@
+# 📦 Thư mục Dependencies và Build (RẤT QUAN TRỌNG)
+##################################################
+
+# Node package manager dependencies
+/node_modules
+
+# Thư mục build của Vite và các thư mục build khác
+/dist
+/dist-ssr
+/build
+/out
+
+# Build cache directory (Vite)
+.vite
+.parcel-cache
+
+# Local environment variables
+# Bảo vệ các khóa bí mật (secrets) và cấu hình cục bộ
+.env
+.env.*.local
+.env.local
+.env.*.development
+
+# Logs và cache files
+##################################################
+# Logs file
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+# Cache files của package manager
+.npm
+.yarn
+.pnpm-store
+
+# 💻 Cấu hình Editor/IDE và Hệ điều hành
+##################################################
+
+# Visual Studio Code
+.vscode/*
+# Giữ lại 'extensions.json' để chia sẻ gợi ý extension cho team
+!.vscode/extensions.json
+
+# IntelliJ/WebStorm
+.idea/
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# Files tạm thời/Editor Swap files (Vim/Emacs)
+*.swp
+*~
