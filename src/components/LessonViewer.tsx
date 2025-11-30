@@ -1,17 +1,18 @@
-import React from 'react';
-import { Video, Code, BookOpen, ArrowLeft, ArrowRight, MessageCircle } from 'lucide-react';
+import React, { useMemo } from 'react';
+import { Video, Code, BookOpen, ArrowLeft, ArrowRight, MessageCircle, FileText, ExternalLink } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import remarkGfm from 'remark-gfm';
 
-// Interface Lesson
 interface Lesson {
   id: string;
   title: string;
   content: string;
   videoUrl?: string;
   pythonCode?: string;
+  chapter?: string; 
+  documentUrl?: string; 
   createdAt?: any;
 }
 
@@ -34,6 +35,30 @@ export default function LessonViewer({ lesson, role, allLessons = [], onNavigate
     </div>
   );
 
+  // --- LOGIC ĐIỀU HƯỚNG MỚI (CHỈ TRONG CÙNG 1 MODULE) ---
+  const { prevLesson, nextLesson } = useMemo(() => {
+    if (!lesson || allLessons.length === 0) return { prevLesson: undefined, nextLesson: undefined };
+
+    // 1. Xác định tên chương của bài hiện tại (Nếu không có thì là "Bài học chung")
+    const currentChapterName = lesson.chapter || "Bài học chung";
+
+    // 2. Lọc ra danh sách các bài học thuộc cùng chương đó
+    const sameChapterLessons = allLessons.filter(l => {
+      const lChapter = l.chapter || "Bài học chung";
+      return lChapter === currentChapterName;
+    });
+
+    // 3. Tìm vị trí của bài hiện tại trong danh sách ĐÃ LỌC
+    const currentIndex = sameChapterLessons.findIndex(l => l.id === lesson.id);
+
+    // 4. Lấy bài trước/sau trong phạm vi chương đó
+    return {
+      prevLesson: sameChapterLessons[currentIndex - 1],
+      nextLesson: sameChapterLessons[currentIndex + 1]
+    };
+  }, [lesson, allLessons]);
+
+
   if (!lesson) {
     return (
       <div className="flex flex-col items-center justify-center h-full text-slate-400 pb-20">
@@ -46,38 +71,47 @@ export default function LessonViewer({ lesson, role, allLessons = [], onNavigate
     );
   }
 
-  // --- LOGIC ĐIỀU HƯỚNG ---
-  const currentIndex = allLessons.findIndex(l => l.id === lesson.id);
-  const prevLesson = allLessons[currentIndex - 1]; // Bài cũ hơn (do sort ASC thì index nhỏ là cũ)
-  const nextLesson = allLessons[currentIndex + 1]; // Bài mới hơn
-
   return (
     <div className="max-w-4xl mx-auto pb-20">
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-        {/* Lesson Header */}
+        {/* Header */}
         <div className="p-8 border-b border-slate-100 bg-white">
-          <h1 className="text-3xl font-bold text-slate-900 mb-4">{lesson.title}</h1>
+          <div className="flex items-center gap-2 mb-2">
+             <span className="bg-indigo-100 text-indigo-700 text-xs font-bold px-2 py-1 rounded uppercase tracking-wider">
+               {lesson.chapter || "Bài học chung"}
+             </span>
+          </div>
+          <h1 className="text-3xl font-bold text-slate-900 mb-6">{lesson.title}</h1>
 
-          {/* NÚT VIDEO */}
-          {lesson.videoUrl && (
-            <div className="flex justify-center mt-6">
+          {/* Cụm nút chức năng: Video & Tài liệu */}
+          <div className="flex flex-wrap gap-3">
+            {lesson.videoUrl && (
               <button
                 type="button"
                 onClick={() => window.open(lesson.videoUrl, '_blank')}
-                className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-full font-medium text-sm transition-all shadow-md hover:shadow-lg transform active:scale-95 group"
+                className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-full font-medium text-sm transition-all shadow-md hover:shadow-lg active:scale-95"
               >
-                <Video className="w-4 h-4 group-hover:animate-pulse" />
-                Xem Video bài giảng
+                <Video className="w-4 h-4" /> Xem Video Youtube
               </button>
-            </div>
-          )}
+            )}
+            
+            {/* NÚT TÀI LIỆU */}
+            {lesson.documentUrl && (
+              <button
+                type="button"
+                onClick={() => window.open(lesson.documentUrl, '_blank')}
+                className="flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white px-5 py-2.5 rounded-full font-medium text-sm transition-all shadow-md hover:shadow-lg active:scale-95"
+              >
+                <FileText className="w-4 h-4" /> Tài liệu đính kèm (Drive) <ExternalLink className="w-3 h-3 opacity-70"/>
+              </button>
+            )}
+          </div>
         </div>
 
-        {/* Lesson Content */}
+        {/* Nội dung chính */}
         <div className="p-8 bg-white min-h-[300px]">
           {renderMarkdown(lesson.content)}
 
-          {/* Python Code Section */}
           {lesson.pythonCode && lesson.pythonCode.trim() !== '' && (
             <div className="mt-10 border-t border-slate-100 pt-8">
               <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
@@ -96,9 +130,8 @@ export default function LessonViewer({ lesson, role, allLessons = [], onNavigate
           )}
         </div>
 
-        {/* --- PHẦN ĐIỀU HƯỚNG BÀI HỌC (Đã sửa logic cho sort ASC) --- */}
+        {/* Footer điều hướng (ĐÃ UPDATE LOGIC) */}
         <div className="bg-slate-50 p-6 border-t border-slate-200 flex justify-between items-center gap-4">
-          {/* Nút lùi về bài trước (Index nhỏ hơn) */}
           {prevLesson ? (
              <button 
                onClick={() => onNavigate && onNavigate(prevLesson.id)}
@@ -112,11 +145,8 @@ export default function LessonViewer({ lesson, role, allLessons = [], onNavigate
                  <div className="text-slate-700 font-medium truncate group-hover:text-indigo-700">{prevLesson.title}</div>
                </div>
              </button>
-          ) : (
-            <div className="flex-1"></div>
-          )}
+          ) : (<div className="flex-1"></div>)}
 
-          {/* Nút tiến tới bài sau (Index lớn hơn) */}
           {nextLesson ? (
              <button 
                onClick={() => onNavigate && onNavigate(nextLesson.id)}
@@ -130,35 +160,19 @@ export default function LessonViewer({ lesson, role, allLessons = [], onNavigate
                  <ArrowRight className="w-5 h-5 text-slate-500 group-hover:text-indigo-600" />
                </div>
              </button>
-          ) : (
-            <div className="flex-1"></div>
-          )}
+          ) : (<div className="flex-1"></div>)}
         </div>
       </div>
 
-      {/* --- PHẦN LIÊN HỆ ZALO (ĐÃ CẬP NHẬT GỌN HƠN) --- */}
       <div className="mt-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-100 p-4 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
         <div className="flex items-center gap-3">
-          <div className="bg-blue-600 p-2 rounded-full shadow-md shadow-blue-200">
-            <MessageCircle className="w-5 h-5 text-white" />
-          </div>
-          <div>
-            <h3 className="text-base font-bold text-slate-800">Thắc mắc bài học?</h3>
-            <p className="text-slate-600 text-xs">Liên hệ trực tiếp giảng viên để được hỗ trợ.</p>
-          </div>
+          <div className="bg-blue-600 p-2 rounded-full shadow-md shadow-blue-200"><MessageCircle className="w-5 h-5 text-white" /></div>
+          <div><h3 className="text-base font-bold text-slate-800">Thắc mắc bài học?</h3><p className="text-slate-600 text-xs">Liên hệ trực tiếp giảng viên.</p></div>
         </div>
-        
-        <a 
-          href="https://zalo.me/0354219504" 
-          target="_blank" 
-          rel="noreferrer"
-          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-bold text-sm shadow-md hover:shadow-lg transition-all active:scale-95 whitespace-nowrap"
-        >
-          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Icon_of_Zalo.svg/1200px-Icon_of_Zalo.svg.png" className="w-5 h-5 object-contain invert brightness-0 grayscale opacity-0" alt="" style={{filter: 'none', opacity: 1}}/>
+        <a href="https://zalo.me/0354219504" target="_blank" rel="noreferrer" className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-bold text-sm shadow-md hover:shadow-lg transition-all active:scale-95 whitespace-nowrap">
           Chat Zalo ngay
         </a>
       </div>
-
     </div>
   );
 }

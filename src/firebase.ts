@@ -2,29 +2,29 @@ import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
-// Cấu hình Firebase
+// --- Thay config của bạn vào đây ---
 const firebaseConfig = {
-  apiKey: "AIzaSyB5xlnu5gvkiq1zvNYckFRpP9HpfkIwMrM",
-  authDomain: "my-lms-web.firebaseapp.com",
-  projectId: "my-lms-web",
-  storageBucket: "my-lms-web.firebasestorage.app",
-  messagingSenderId: "839804354182",
-  appId: "1:839804354182:web:06e480cb6e3be4ccd11b07"
+  apiKey: "AIzaSyDmlD1MprThgthzZqQn28gQclEpRq3fXUc",
+  authDomain: "my-lms-learning.firebaseapp.com",
+  projectId: "my-lms-learning",
+  storageBucket: "my-lms-learning.firebasestorage.app",
+  messagingSenderId: "1033557764010",
+  appId: "1:1033557764010:web:5c6a51b107f1c5e220add3"
 };
 
-// Initialize Firebase safely
+let app;
 let auth: any;
 let db: any;
 let firebaseInitialized = false;
 
 try {
-  const app = initializeApp(firebaseConfig);
+  app = initializeApp(firebaseConfig);
   auth = getAuth(app);
   db = getFirestore(app);
   firebaseInitialized = true;
-  console.log("Firebase initialized successfully");
+  console.log("✅ Kết nối Firebase thành công!");
 } catch (error) {
-  console.error("Firebase initialization failed:", error);
+  console.error("❌ Lỗi kết nối Firebase:", error);
 }
 
 export { auth, db, firebaseInitialized };
