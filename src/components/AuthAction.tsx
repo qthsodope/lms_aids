@@ -21,6 +21,11 @@ export default function AuthAction() {
   const [isResetCodeValid, setIsResetCodeValid] = useState(false);
 
   useEffect(() => {
+    // DEBUG: In ra console để kiểm tra
+    console.log('🔍 AuthAction - mode:', mode);
+    console.log('🔍 AuthAction - oobCode:', oobCode);
+    console.log('🔍 AuthAction - Full URL:', window.location.href);
+
     if (!oobCode) {
       setMessage({ type: 'error', text: 'Thiếu mã xác thực. Đường dẫn không hợp lệ.' });
       setIsVerifying(false);
