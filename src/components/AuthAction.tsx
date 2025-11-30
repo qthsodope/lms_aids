@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { applyActionCode, confirmPasswordReset, verifyPasswordResetCode } from 'firebase/auth';
 import { auth } from '../firebase';
-import { Lock, CheckCircle, AlertCircle, ArrowLeft, MailCheck, Eye, EyeOff } from 'lucide-react';
+import { Lock, CheckCircle, AlertCircle, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 
 export default function AuthAction() {
   const [searchParams] = useSearchParams();
