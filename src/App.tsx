@@ -6,7 +6,7 @@ import { BrowserRouter, Routes, Route, Link, useNavigate, useParams, Navigate } 
 
 import LessonEditor from './components/LessonEditor';
 import LessonViewer from './components/LessonViewer';
-import AuthAction from './components/AuthAction'; // MỚI: Dùng AuthAction thay cho ResetPassword
+import AuthAction from './components/AuthAction'; // Dùng AuthAction cho cả Reset Password & Verify Email
 import { auth, db, firebaseInitialized } from './firebase';
 
 import {
@@ -44,7 +44,7 @@ interface Lesson {
   createdAt?: any;
 }
 
-// --- COMPONENT CON ---
+// --- COMPONENT CON (WRAPPER DÙNG CHO ROUTING) ---
 const LessonRouteWrapper = ({ lessons, role }: { lessons: Lesson[], role: Role }) => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -172,6 +172,7 @@ function LMSApp() {
     }
   }, [user]);
 
+  // LOGIC GOM NHÓM BÀI HỌC THEO CHƯƠNG
   const groupedLessons = useMemo(() => {
     const groups: Record<string, Lesson[]> = {};
     lessons.forEach(lesson => {
@@ -197,8 +198,11 @@ function LMSApp() {
       await sendEmailVerification(verifyingUser);
       alert(`Đã gửi lại email tới ${verifyingUser.email}!\n\nHãy kiểm tra hộp thư.`);
     } catch (error: any) {
-      if (error.code === 'auth/too-many-requests') alert("Bạn gửi quá nhanh. Vui lòng đợi một chút.");
-      else alert("Lỗi: " + error.message);
+      if (error.code === 'auth/too-many-requests') {
+        alert("Bạn gửi quá nhanh. Vui lòng đợi một chút.");
+      } else {
+        alert("Lỗi: " + error.message);
+      }
     } finally {
       setIsResending(false);
     }
@@ -215,6 +219,7 @@ function LMSApp() {
     }
 
     try {
+      // Hàm này chỉ gửi email. Việc xử lý đổi pass nằm ở trang AuthAction
       await sendPasswordResetEmail(auth, email);
       setSuccessMsg("Email đặt lại mật khẩu đã được gửi! Vui lòng kiểm tra hộp thư.");
     } catch (error: any) {
@@ -248,7 +253,7 @@ function LMSApp() {
           email: email,
           fullName: fullName,
           major: major,
-          role: 'student', 
+          role: 'student', // Sẽ bị kiểm tra bởi Firestore Rules
           createdAt: serverTimestamp()
         });
 
@@ -256,12 +261,15 @@ function LMSApp() {
         setVerifyingUser(newUser);
         setVerificationSent(true);
         isJustRegistered.current = false; 
+
       } else {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         const currentUser = userCredential.user;
+
         if (currentUser.email) {
           const userDocRef = doc(db, "users", currentUser.email);
           const userDocSnap = await getDoc(userDocRef);
+
           if (!userDocSnap.exists()) {
             await setDoc(userDocRef, {
               uid: currentUser.uid,
@@ -274,6 +282,7 @@ function LMSApp() {
             setRole('student');
           }
         }
+
         if (!currentUser.emailVerified) {
              setVerifyingUser(currentUser);
              setVerificationSent(true);
@@ -319,6 +328,7 @@ function LMSApp() {
     navigate('/');
   };
 
+  // --- CRUD HANDLERS ---
   const handleSaveLesson = async (data: any, id?: string) => {
     try { 
       if (id) { 
@@ -371,7 +381,7 @@ function LMSApp() {
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 to-slate-200 p-4">
         {/* ROUTES CHO KHÁCH (CHƯA ĐĂNG NHẬP) */}
         <Routes>
-            {/* Dùng AuthAction cho cả 2 mục đích: Reset Password & Verify Email */}
+            {/* Đã đổi từ /reset-password sang /auth/action để xử lý đa năng */}
             <Route path="/auth/action" element={<AuthAction />} />
             
             <Route path="*" element={
