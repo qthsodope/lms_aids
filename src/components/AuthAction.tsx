@@ -90,6 +90,13 @@ export default function AuthAction() {
 
   // --- XÁC THỰC EMAIL ---
   if (mode === 'verifyEmail') {
+    // Tự động redirect sau 2 giây nếu thành công
+    if (message?.type === 'success') {
+      setTimeout(() => {
+        navigate('/');
+      }, 2000);
+    }
+
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
         <div className="bg-white p-8 rounded-xl shadow-lg max-w-md text-center border border-slate-100">
@@ -101,12 +108,16 @@ export default function AuthAction() {
             {message?.text}
           </p>
 
-          <button 
-            onClick={() => navigate('/')}
-            className="mt-6 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg transition-all shadow-md active:scale-95"
-          >
-            Quay trở lại
-          </button>
+          {message?.type === 'success' ? (
+            <p className="text-slate-400 text-sm mt-6">Đang chuyển hướng...</p>
+          ) : (
+            <button 
+              onClick={() => navigate('/')}
+              className="mt-6 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg transition-all shadow-md active:scale-95"
+            >
+              Quay trở lại
+            </button>
+          )}
         </div>
       </div>
     );
