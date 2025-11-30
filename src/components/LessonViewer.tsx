@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { Video, Code, BookOpen, ArrowLeft, ArrowRight, MessageCircle, FileText, ExternalLink } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';

@@ -6,7 +6,7 @@ import { BrowserRouter, Routes, Route, Link, useNavigate, useParams, Navigate } 
 
 import LessonEditor from './components/LessonEditor';
 import LessonViewer from './components/LessonViewer';
-import ResetPassword from './components/ResetPassword'; // MỚI: Import trang Reset
+import ResetPassword from './components/ResetPassword'; 
 import { auth, db, firebaseInitialized } from './firebase';
 
 import {
@@ -215,7 +215,6 @@ function LMSApp() {
     }
 
     try {
-      // Logic gửi mail mặc định (Sẽ cần chỉnh Action URL trên console để trỏ về trang mới)
       await sendPasswordResetEmail(auth, email);
       setSuccessMsg("Email đặt lại mật khẩu đã được gửi! Vui lòng kiểm tra hộp thư.");
     } catch (error: any) {
@@ -344,14 +343,9 @@ function LMSApp() {
     } catch (err) { setLessons(prev); alert("Xóa thất bại!"); }
   };
 
-  // --- RENDER UI ---
-  // Màn hình Reset Password (Nằm ngoài luồng login/logout thông thường)
-  // Logic: Nếu URL là /reset-password thì component ResetPassword sẽ được render bởi Routes bên dưới
-  
   if (loading) return <div className="flex justify-center items-center h-screen bg-slate-50"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div></div>;
 
   if (verificationSent) {
-    // ... (Giữ nguyên UI xác thực email) ...
     return (
         <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
             <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md text-center border border-slate-100">
@@ -388,7 +382,7 @@ function LMSApp() {
 
                   {isResettingPassword ? (
                     <form onSubmit={handleResetPassword} className="space-y-4">
-                      <div><label className="block text-sm font-medium text-slate-700 mb-1">Nhập email của bạn</label><input type="text" required className="w-full bg-white text-gray-900 border border-gray-300 rounded-lg p-3 outline-none focus:ring-2 focus:ring-blue-500" placeholder="••••••••" value={email} onChange={e => setEmail(e.target.value)} /></div>
+                      <div><label className="block text-sm font-medium text-slate-700 mb-1">Nhập email của bạn</label><input type="text" required className="w-full bg-white text-gray-900 border border-gray-300 rounded-lg p-3 outline-none focus:ring-2 focus:ring-blue-500" placeholder="Email..." value={email} onChange={e => setEmail(e.target.value)} /></div>
                       <button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg transition-all shadow-md active:scale-95">Gửi link đặt lại mật khẩu</button>
                       <button type="button" onClick={() => { setIsResettingPassword(false); setErrorMsg(''); setSuccessMsg(''); }} className="w-full text-slate-500 hover:text-slate-700 text-sm mt-2">Quay lại Đăng nhập</button>
                     </form>
@@ -397,10 +391,10 @@ function LMSApp() {
                       {isRegistering && (
                           <>
                               <div><label className="block text-sm font-medium text-slate-700 mb-1">Họ và tên</label><input type="text" required className="w-full bg-slate-50 text-gray-900 border border-gray-300 rounded-lg p-3 outline-none focus:ring-2 focus:ring-blue-500" placeholder="Nguyễn Văn A" value={fullName} onChange={e => setFullName(e.target.value)} /></div>
-                              <div><label className="block text-sm font-medium text-slate-700 mb-1">Ngành học</label><input type="text" required className="w-full bg-slate-50 text-gray-900 border border-gray-300 rounded-lg p-3 outline-none focus:ring-2 focus:ring-blue-500" placeholder="Khoa học máy tính" value={major} onChange={e => setMajor(e.target.value)} /></div>
+                              <div><label className="block text-sm font-medium text-slate-700 mb-1">Ngành học</label><input type="text" required className="w-full bg-slate-50 text-gray-900 border border-gray-300 rounded-lg p-3 outline-none focus:ring-2 focus:ring-blue-500" placeholder="CNTT..." value={major} onChange={e => setMajor(e.target.value)} /></div>
                           </>
                       )}
-                      <div><label className="block text-sm font-medium text-slate-700 mb-1">Email</label><input type="text" required className="w-full bg-white text-gray-900 border border-gray-300 rounded-lg p-3 outline-none focus:ring-2 focus:ring-blue-500" placeholder={isRegistering ? "2301xxxx@st.phenikaa-uni.edu.vn" : "••••••••"} value={email} onChange={e => setEmail(e.target.value)} /></div>
+                      <div><label className="block text-sm font-medium text-slate-700 mb-1">Email</label><input type="text" required className="w-full bg-white text-gray-900 border border-gray-300 rounded-lg p-3 outline-none focus:ring-2 focus:ring-blue-500" placeholder={isRegistering ? "2301xxxx@st.phenikaa-uni.edu.vn" : "Email..."} value={email} onChange={e => setEmail(e.target.value)} /></div>
                       <div>
                         <label className="block text-sm font-medium text-slate-700 mb-1">Mật khẩu</label>
                         <input type="password" required className="w-full bg-white text-gray-900 border border-gray-300 rounded-lg p-3 outline-none focus:ring-2 focus:ring-blue-500" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} />
@@ -426,7 +420,6 @@ function LMSApp() {
 
   return (
     <div className="flex h-screen bg-white overflow-hidden">
-      {/* ... (Phần Sidebar và Main Content khi đã đăng nhập giữ nguyên như cũ) ... */}
       {deleteConfirm.show && <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"><div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6"><h3 className="text-xl font-bold text-slate-800 mb-2">Xác nhận xóa?</h3><div className="flex gap-3 justify-end mt-6"><button onClick={() => setDeleteConfirm({show:false, lessonId:null})} className="px-4 py-2 rounded-lg text-slate-600 hover:bg-slate-100">Hủy</button><button onClick={confirmDelete} className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700">Xóa</button></div></div></div>}
       
       <aside className={`${isSidebarOpen ? 'w-96' : 'w-0'} bg-slate-900 text-white flex flex-col shadow-2xl z-10 transition-all duration-300 overflow-hidden relative`}>
