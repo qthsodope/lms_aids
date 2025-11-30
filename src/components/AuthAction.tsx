@@ -30,8 +30,7 @@ export default function AuthAction() {
     if (mode === 'verifyEmail') {
       applyActionCode(auth, oobCode)
         .then(() => {
-          // Thông báo đơn giản như bạn yêu cầu
-          setMessage({ type: 'success', text: 'Bạn đã xác thực tài khoản thành công! Vui lòng quay lại trang web trước để đăng nhập.' });
+          setMessage({ type: 'success', text: 'Bạn đã xác thực tài khoản thành công! Vui lòng quay lại để đăng nhập.' });
           setIsVerifying(false);
         })
         .catch((error) => {
@@ -89,7 +88,7 @@ export default function AuthAction() {
     );
   }
 
-  // --- GIAO DIỆN RIÊNG CHO XÁC THỰC EMAIL (ĐƠN GIẢN HÓA) ---
+  // --- XÁC THỰC EMAIL ---
   if (mode === 'verifyEmail') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
@@ -98,27 +97,22 @@ export default function AuthAction() {
             {message?.type === 'success' ? <CheckCircle className="w-8 h-8" /> : <AlertCircle className="w-8 h-8" />}
           </div>
           
-          <h2 className="text-xl font-bold text-slate-800 mb-2">
-            {message?.type === 'success' ? 'Xác thực thành công!' : 'Xác thực thất bại'}
-          </h2>
-          
-          <p className="text-slate-600 mb-6">
+          <p className="text-slate-600 text-base">
             {message?.text}
           </p>
 
-          {/* Chỉ hiện nút quay về nếu thành công hoặc lỗi */}
           <button 
-            onClick={() => window.close()} // Thử đóng tab (thường bị chặn bởi trình duyệt) hoặc quay về
-            className="text-indigo-600 font-medium hover:underline text-sm"
+            onClick={() => navigate('/')}
+            className="mt-6 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg transition-all shadow-md active:scale-95"
           >
-            (Bạn có thể đóng tab này ngay bây giờ)
+            Quay trở lại
           </button>
         </div>
       </div>
     );
   }
 
-  // --- GIAO DIỆN CHO RESET PASSWORD (GIỮ NGUYÊN VẺ ĐẸP) ---
+  // --- RESET PASSWORD ---
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 to-slate-200 p-4">
       <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md border border-slate-100">
@@ -137,7 +131,6 @@ export default function AuthAction() {
 
         {mode === 'resetPassword' && isResetCodeValid && message?.type !== 'success' ? (
           <form onSubmit={handleResetPasswordSubmit} className="space-y-5">
-             {/* ... (Form nhập pass giữ nguyên như cũ) ... */}
              <div className="space-y-1">
                 <label className="text-sm font-bold text-slate-700">Mật khẩu mới</label>
                 <div className="relative">
